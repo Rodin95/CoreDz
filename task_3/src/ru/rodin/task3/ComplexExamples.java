@@ -1,6 +1,10 @@
 package ru.rodin.task3;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ComplexExamples {
 
@@ -84,18 +88,6 @@ public class ComplexExamples {
      */
 
     public static void main(String[] args) {
-        System.out.println("Raw data:");
-        System.out.println();
-
-        for (Person person : RAW_DATA) {
-            System.out.println(person.id + " - " + person.name);
-        }
-
-        System.out.println();
-        System.out.println("**************************************************");
-        System.out.println();
-        System.out.println("Duplicate filtered, grouped by name, sorted by name and id:");
-        System.out.println();
 
         /*
         Task1
@@ -111,16 +103,40 @@ public class ComplexExamples {
                 Value:1
          */
 
+        Map<String, Long> result = Arrays.stream(RAW_DATA)
+                .filter(Objects::nonNull)
+                .filter(el -> el.getName() != null)
+                .distinct()
+                .sorted(Comparator.comparing(Person::getId))
+                .collect(Collectors.groupingBy(Person::getName, Collectors.counting()));
+
+        System.out.println("task_1");
+        System.out.println();
 
 
-        /*
+        for (Map.Entry<String, Long> item : result.entrySet()) {
+            System.out.println("Key: " + item.getKey() + "\n" + "Value:" + item.getValue());
+        }
+
+        System.out.println();
+
+        System.out.println("----------------------------------------------");
+        System.out.println("task_2");
+
+        System.out.println();
+
+ /*
         Task2
 
             [3, 4, 2, 7], 10 -> [3, 7] - вывести пару менно в скобках, которые дают сумму - 10
          */
 
+        taskTwo(new int[]{3, 4, 2, 7},10);
 
-
+        System.out.println();
+        System.out.println("----------------------------------------------");
+        System.out.println("task_3");
+        System.out.println();
         /*
         Task3
             Реализовать функцию нечеткого поиска
@@ -133,6 +149,49 @@ public class ComplexExamples {
                     fuzzySearch("lw", "cartwheel"); // false
          */
 
+        fuzzySearch("car", "ca6$$#_rtwheel"); // true
+        fuzzySearch("cwhl", "cartwheel"); // true
+        fuzzySearch("cwhee", "cartwheel"); // true
+        fuzzySearch("cartwheel", "cartwheel"); // true
+        fuzzySearch("cwheeel", "cartwheel"); // false
+        fuzzySearch("lw", "cartwheel"); // false
 
+
+    }
+
+    public static void taskTwo(int[] array, int number) {
+
+        String result = "";
+
+        for (int i = 0; i < array.length - 1; i++) {
+            for (int j = array.length - 1; j > 0; j--) {
+                if (array[i] + array[j] == number) {
+                    result = "[" + array[i] + ", " + array[j] + "]";
+                }
+            }
+        }
+
+        System.out.println(result);
+    }
+
+    public static void fuzzySearch(String originalLine, String searchLine) {
+
+        String[] originalLineArray = originalLine.replaceAll("[^a-zA-Zа-яёА-ЯЁ]", "").split("");
+
+        String[] searchLineArray = searchLine.replaceAll("[^a-zA-Zа-яёА-ЯЁ]", "").split("");
+
+        StringBuilder result = new StringBuilder();
+
+        for (int j = 0; j < searchLineArray.length; j++) {
+            for (int i = 0; i < originalLineArray.length; i++) {
+                if (originalLineArray[i].equals(searchLineArray[j])) {
+                    result.append(searchLineArray[j]);
+                    originalLineArray[i] = "";
+                    searchLineArray[j] = "";
+                }
+            }
+            searchLineArray[j] = "";
+        }
+        System.out.println(result.toString().equals(originalLine));
     }
 }
